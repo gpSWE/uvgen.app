@@ -24,7 +24,10 @@ const params = {
 	triangles: 100,
 	infiniteTriangles: false,
 	material: 1,
-	wireframe: true,
+	wireframe: false,
+	uvcheck: false,
+	mapRepeatX: 1,
+	mapRepeatY: 1,
 }
 
 const world = new THREE.Object3D()
@@ -81,6 +84,9 @@ function run( data ) {
 
 	scene.add( new THREE.AxesHelper( 10_000 ) )
 
+	scene.add( new THREE.DirectionalLight( 0xffffff, 0.5 ) )
+	scene.add( new THREE.HemisphereLight( 0xffffff, 0xaaaaaa, 0.5 ) )
+
 	// GUI
 
 	const pane = new Pane()
@@ -103,10 +109,21 @@ function run( data ) {
 	const material = pane.addInput( params, "material", {
 		options: {
 			MeshBasicMaterial: 1,
-			MeshNormalMaterial: 2,
+			MeshStandardMaterial: 2,
 		},
 	} )
 	pane.addInput( params, "wireframe" )
+	pane.addInput( params, "uvcheck" )
+	pane.addInput( params, "mapRepeatX", {
+		min: 1,
+		max: 100,
+		step: 1,
+	} )
+	pane.addInput( params, "mapRepeatY", {
+		min: 1,
+		max: 100,
+		step: 1,
+	} )
 
 	const gen = () => {
 
@@ -125,13 +142,21 @@ function generate( scene, data ) {
 
 	let material = null
 
+	const map = params.uvcheck ? new THREE.TextureLoader().load( "/uvcheck.jpg" ) : null
+
+	if ( map ) {
+
+		map.wrapS = map.wrapT = THREE.RepeatWrapping
+		map.repeat.set( params.mapRepeatX, params.mapRepeatY )
+	}
+
 	if ( params.material === 1 ) {
 
-		material = new THREE.MeshBasicMaterial( { wireframe: params.wireframe, side: THREE.DoubleSide } )
+		material = new THREE.MeshBasicMaterial( { map, wireframe: params.wireframe, side: THREE.DoubleSide } )
 	}
 	else if ( params.material === 2 ) {
 
-		material = new THREE.MeshNormalMaterial( { wireframe: params.wireframe, side: THREE.DoubleSide } )
+		material = new THREE.MeshStandardMaterial( { map, wireframe: params.wireframe, side: THREE.DoubleSide } )
 	}
 	
 	const points = []
@@ -188,6 +213,34 @@ function generate( scene, data ) {
 			} )
 
 			const mesh = new THREE.Mesh( subdivided, material )
+
+			{
+				// UV calculation
+
+				const box3 = new THREE.Box3().setFromObject( mesh )
+				const size = new THREE.Vector3()
+				box3.getSize( size )
+
+				const position = mesh.geometry.attributes.position
+				const uv = []
+
+				const v3 = new THREE.Vector3()
+
+				for ( let i = 0, count = position.count; i < count; i++ ) {
+
+					v3.fromBufferAttribute( position, i )
+
+					const x = ( v3.x - box3.min.x ) / size.x
+					const y = ( v3.y - box3.min.y ) / size.y
+
+					uv.push( x, y )
+				}
+				
+				subdivided.computeVertexNormals()
+
+				subdivided.setAttribute( "uv", new THREE.Float32BufferAttribute( uv, 2 ) )
+				subdivided.needsUpdate = true
+			}
 
 			world.add( mesh )
 		}
