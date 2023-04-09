@@ -41,6 +41,28 @@ canvas {
 	height: 100vh;
 }
 
+#refresh {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #ffffff;
+	cursor: pointer;
+	position: fixed;
+	top: 1rem;
+	left: 1rem;
+	text-decoration: none;
+}
+
+#refresh:hover {
+	color: #049ef4;
+}
+
+#refresh svg {
+	width: 1rem;
+	height: 1rem;
+	fill: currentColor;
+}
+
 #openFileButton {
 	font-family: sans-serif;
 	font-size: 1rem;
@@ -70,4 +92,21 @@ canvas {
 	visibility: hidden;
 	opacity: 0;
 	pointer-events: none;
+}
+
+footer {
+	font-family: sans-serif;
+	font-size: 1rem;
+	position: absolute;
+	color: #ffffff;
+	bottom: 0;
+	display: flex;
+	width: 100vw;
+	padding: 1rem;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+footer a {
+	color: #049ef4;
 }

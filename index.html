@@ -5,12 +5,20 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="google" content="notranslate">
-		<title>UV Generator</title>
-		<meta name="description" content="UV Generation, Plane subdivision & Triangulation tools for THREE.JS">
+		<title>UVGen</title>
+		<meta name="description" content="Triangulation, Mercator projection, Subdivision, UV Generation  tools for THREE.JS">
 	</head>
-	<body>
+	<body style="opacity: 0;">
+		<a href="https://www.uvgen.app" id="refresh">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="16" height="16">
+				<path d="M 0 0 L 6.4 0 L 6.4 32 L 12.8 32 L 12.8 0 L 19.2 0 L 19.2 32 L 25.6 32 L 25.6 0 L 64 0 L 64 64 L 57.6 64 L 57.6 32 L 51.2 32 L 51.2 64 L 44.8 64 L 44.8 32 L 38.4 32 L 38.4 64 L 0 64 Z"/>
+			</svg>
+		</a>
 		<input type="file" id="fileInput">
 		<button id="openFileButton">Open GeoJSON file</button>
+		<footer>
+			<p>by <a href="https://www.lumenkowski.com" target="_blank">Lumenkowski</a></p>
+		</footer>
 		<script type="module" src="/src/main.js"></script>
 	</body>
 </html>

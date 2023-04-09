@@ -10,45 +10,9 @@ import { Earcut } from "./Earcut"
 
 window.addEventListener( "DOMContentLoaded", () => {
 
-	const fileInput = document.getElementById( "fileInput" )
-	const openFileButton = document.getElementById( "openFileButton" )
+	document.fonts.ready.then( () => init() )
 
-	fileInput.addEventListener( "change", e => {
-
-		if ( e.target.files && e.target.files[ 0 ] ) {
-
-			const source = e.target.files[ 0 ]
-
-			const reader = new FileReader()
-
-			reader.addEventListener( "load", e => {
-
-				try {
-
-					const data = JSON.parse( e.target.result )
-
-					// if ( !GeoJSONValidator.isGeoJSONObject( data ) ) {
-
-					// 	alert( "Unsupported GeoJSON format" )
-
-					// 	return
-					// }
-
-					openFileButton.remove()
-
-					run( data )
-				}
-				catch( e ) {
-
-					alert( "Unsupported JSON format" )
-				}
-			} )
-
-			reader.readAsBinaryString( source )
-		}
-	} )
-
-	openFileButton.onclick = () => fileInput.click()
+	document.body.style.opacity = 1
 } )
 
 const params = {
@@ -64,6 +28,52 @@ const params = {
 }
 
 const world = new THREE.Object3D()
+
+function init() {
+
+	const fileInput = document.getElementById( "fileInput" )
+	const openFileButton = document.getElementById( "openFileButton" )
+
+	fileInput.addEventListener( "change", e => {
+
+		if ( e.target.files && e.target.files[ 0 ] ) {
+
+			const source = e.target.files[ 0 ]
+
+			const reader = new FileReader()
+
+			reader.addEventListener( "load", e => {
+
+				let data = null
+
+				try {
+
+					data = JSON.parse( e.target.result )
+
+				}
+				catch( e ) {
+
+					alert( "Invalid file" )
+				}
+				finally {
+
+					if ( GeoJSONValidator.isGeoJSONObject( data ) ) {
+
+						openFileButton.remove()
+						run( data )
+					}
+					else {
+						alert( "Invalid GeoJSON" )
+					}
+				}
+			} )
+
+			reader.readAsBinaryString( source )
+		}
+	} )
+
+	openFileButton.onclick = () => fileInput.click()
+}
 
 function run( data ) {
 
@@ -98,13 +108,17 @@ function run( data ) {
 	} )
 	pane.addInput( params, "wireframe" )
 
-	pane.on( "change", ( { presetKey: param, value } ) => {
+	const gen = () => {
 
 		world.children = []
 		scene.remove( world )
 
 		generate( scene, data )
-	} )
+	}
+
+	gen()
+
+	pane.on( "change", gen )
 }
 
 function generate( scene, data ) {
