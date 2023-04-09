@@ -108,3 +108,7 @@ canvas {
 	opacity: 0;
 	pointer-events: none;
 }
+
+.note {
+	color: #ff3355;
+}
