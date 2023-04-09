@@ -1,6 +1,7 @@
 import "./main.css"
 import * as THREE from "three"
 import * as turf from "@turf/turf"
+import { LoopSubdivision } from "three-subdivide"
 import * as utils from "./utils"
 import basicSetup from "./setup"
 import { Earcut } from "./Earcut"
@@ -62,11 +63,21 @@ function run() {
 
 			geometry.setIndex( indices )
 
-			geometry.computeVertexNormals()
+			const iterations = 2
 
-			const material = new THREE.MeshBasicMaterial( { wireframe: true } )
+			const params = {
+				split: true,
+				uvSmooth: true,
+				preserveEdges: true,
+				flatOnly: true,
+				maxTriangles: Infinity,
+			}
 
-			const mesh = new THREE.Mesh( geometry, material )
+			const subdivided = LoopSubdivision.modify( geometry, iterations, params )
+
+			const material = new THREE.MeshNormalMaterial( { wireframe: true } )
+
+			const mesh = new THREE.Mesh( subdivided, material )
 
 			world.add( mesh )
 		}
