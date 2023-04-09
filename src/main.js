@@ -3,12 +3,53 @@ import * as THREE from "three"
 import * as turf from "@turf/turf"
 import { LoopSubdivision } from "three-subdivide"
 import { Pane } from "tweakpane"
+import GeoJSONValidator from "geojson-validation"
 import * as utils from "./utils"
 import basicSetup from "./setup"
 import { Earcut } from "./Earcut"
-import sample from "./sample-data"
 
-window.addEventListener( "DOMContentLoaded", run )
+window.addEventListener( "DOMContentLoaded", () => {
+
+	const fileInput = document.getElementById( "fileInput" )
+	const openFileButton = document.getElementById( "openFileButton" )
+
+	fileInput.addEventListener( "change", e => {
+
+		if ( e.target.files && e.target.files[ 0 ] ) {
+
+			const source = e.target.files[ 0 ]
+
+			const reader = new FileReader()
+
+			reader.addEventListener( "load", e => {
+
+				try {
+
+					const data = JSON.parse( e.target.result )
+
+					// if ( !GeoJSONValidator.isGeoJSONObject( data ) ) {
+
+					// 	alert( "Unsupported GeoJSON format" )
+
+					// 	return
+					// }
+
+					openFileButton.remove()
+
+					run( data )
+				}
+				catch( e ) {
+
+					alert( "Unsupported JSON format" )
+				}
+			} )
+
+			reader.readAsBinaryString( source )
+		}
+	} )
+
+	openFileButton.onclick = () => fileInput.click()
+} )
 
 const params = {
 	loop: 1,
@@ -24,7 +65,7 @@ const params = {
 
 const world = new THREE.Object3D()
 
-function run() {
+function run( data ) {
 
 	const { scene } = basicSetup()
 
@@ -62,11 +103,11 @@ function run() {
 		world.children = []
 		scene.remove( world )
 
-		generate( scene )
+		generate( scene, data )
 	} )
 }
 
-function generate( scene ) {
+function generate( scene, data ) {
 
 	let material = null
 
@@ -82,7 +123,7 @@ function generate( scene ) {
 	const points = []
 	const pointsCollection = []
 
-	turf.geomEach( sample, ( { type, coordinates } ) => {
+	turf.geomEach( data, ( { type, coordinates } ) => {
 
 		if ( type === "Polygon" ) {
 
@@ -100,7 +141,7 @@ function generate( scene ) {
 
 	const centerOfMass = turf.centerOfMass( concave ).geometry.coordinates
 
-	turf.geomEach( sample, ( { type, coordinates } ) => {
+	turf.geomEach( data, ( { type, coordinates } ) => {
 
 		if ( type === "Polygon" ) {
 
