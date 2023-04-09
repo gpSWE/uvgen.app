@@ -32,10 +32,14 @@ export default () => {
 	window.addEventListener( "resize", onResize, false )
 
 	const mapControls = new MapControls( camera, renderer.domElement )
+	mapControls.enableDamping = true
 
 	// Render
 
-	renderer.setAnimationLoop( () => renderer.render( scene, camera ) )
+	renderer.setAnimationLoop( () => {
+		mapControls.update()
+		renderer.render( scene, camera )
+	} )
 
 	return {
 		scene,

@@ -23,12 +23,15 @@ const params = {
 	repeatY: 1,
 }
 
+let changes = 0
+
 const world = new THREE.Object3D()
 
 function init() {
 
 	const fileInput = document.getElementById( "fileInput" )
 	const openFileButton = document.getElementById( "openFileButton" )
+	const mainDOM = document.querySelector( "main" )
 
 	fileInput.addEventListener( "change", e => {
 
@@ -65,7 +68,7 @@ function init() {
 							}
 						}
 
-						openFileButton.remove()
+						mainDOM.remove()
 
 						run( data )
 					}
@@ -320,13 +323,19 @@ function generate( data, { scene, camera } ) {
 	const box3 = new THREE.Box3().setFromObject( world )
 
 	box3.getCenter( center )
-	box3.getSize( size )
 
 	world.position.sub( center )
 
-	const distanceW = size.x / ( camera.aspect * 2 * Math.tan( Math.PI / 180 * camera.fov / 2 ) )
-	const distanceH = size.y / ( 2 * Math.tan( Math.PI / 180 * camera.fov / 2 ) )
-	camera.position.z = distanceW + distanceH
+	if ( changes === 0 ) {
+
+		box3.getSize( size )
+
+		const distanceW = size.x / ( camera.aspect * 2 * Math.tan( Math.PI / 180 * camera.fov / 2 ) )
+		const distanceH = size.y / ( 2 * Math.tan( Math.PI / 180 * camera.fov / 2 ) )
+		camera.position.z = distanceW + distanceH
+
+		changes++
+	}
 }
 
 window.addEventListener( "DOMContentLoaded", () => {
