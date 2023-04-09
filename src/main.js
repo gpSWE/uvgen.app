@@ -84,7 +84,7 @@ function init() {
 
 function run( data ) {
 
-	const { scene } = basicSetup()
+	const { scene, camera } = basicSetup()
 
 	scene.add( new THREE.AxesHelper( 10_000 ) )
 
@@ -196,7 +196,7 @@ function run( data ) {
 		world.children = []
 		scene.remove( world )
 
-		generate( scene, data )
+		generate( data, { scene, camera } )
 	}
 
 	gen()
@@ -204,7 +204,7 @@ function run( data ) {
 	pane.on( "change", gen )
 }
 
-function generate( scene, data ) {
+function generate( data, { scene, camera } ) {
 
 	let material = null
 
@@ -315,8 +315,18 @@ function generate( scene, data ) {
 	scene.add( world )
 
 	const center = new THREE.Vector3()
-	new THREE.Box3().setFromObject( world ).getCenter( center )
+	const size = new THREE.Vector3()
+
+	const box3 = new THREE.Box3().setFromObject( world )
+
+	box3.getCenter( center )
+	box3.getSize( size )
+
 	world.position.sub( center )
+
+	const distanceW = size.x / ( camera.aspect * 2 * Math.tan( Math.PI / 180 * camera.fov / 2 ) )
+	const distanceH = size.y / ( 2 * Math.tan( Math.PI / 180 * camera.fov / 2 ) )
+	camera.position.z = distanceW + distanceH
 }
 
 window.addEventListener( "DOMContentLoaded", () => {

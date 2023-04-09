@@ -93,3 +93,20 @@ canvas {
 	opacity: 0;
 	pointer-events: none;
 }
+
+footer {
+	font-family: sans-serif;
+	font-size: 1rem;
+	position: absolute;
+	color: #ffffff;
+	bottom: 0;
+	display: flex;
+	width: 100vw;
+	padding: 1rem;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+footer a {
+	color: #049ef4;
+}
