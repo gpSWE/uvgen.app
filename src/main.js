@@ -14,7 +14,7 @@ const params = {
 	smooth: true,
 	edge: true,
 	flat: true,
-	triangles: 100,
+	maxTriangles: 1000,
 	infiniteTriangles: false,
 	material: 1,
 	wireframe: false,
@@ -55,7 +55,18 @@ function init() {
 
 					if ( GeoJSONValidator.isGeoJSONObject( data ) ) {
 
+						if ( GeoJSONValidator.isFeatureCollection( data ) ) {
+							
+							if ( data.features.length === 0 ) {
+
+								alert( "Empty GeoJSON" )
+
+								return
+							}
+						}
+
 						openFileButton.remove()
+
 						run( data )
 					}
 					else {
@@ -86,19 +97,19 @@ function run( data ) {
 
 	pane.addInput( params, "loop", {
 		min: 1,
-		max: 7,
+		max: 5,
 		step: 1,
 	} )
 	pane.addInput( params, "split" )
 	pane.addInput( params, "smooth" )
 	pane.addInput( params, "edge" )
 	pane.addInput( params, "flat" )
-	pane.addInput( params, "infiniteTriangles" )
-	pane.addInput( params, "triangles", {
-		min: 500,
+	pane.addInput( params, "maxTriangles", {
+		min: 1000,
 		max: 100_000,
-		step: 500,
+		step: 1000,
 	} )
+	pane.addInput( params, "infiniteTriangles" )
 	const material = pane.addInput( params, "material", {
 		options: {
 			MeshBasicMaterial: 1,
@@ -138,8 +149,6 @@ function run( data ) {
 				}
 			} )
 
-			console.log( json )
-
 			const data = "data:application/geo+json;charset=utf-8," + encodeURIComponent( JSON.stringify( json, null, "\t" ) )
 
 			const a = document.createElement( "A" )
@@ -149,7 +158,6 @@ function run( data ) {
 			a.setAttribute( "download", "geometries.json" )
 			a.click()
 			a.remove()
-
 		}
 	} )
 
@@ -237,7 +245,7 @@ function generate( scene, data ) {
 				uvSmooth: params.smooth,
 				preserveEdges: params.edge,
 				flatOnly: params.flat,
-				maxTriangles: params.infiniteTriangles ? Infinity : params.triangles,
+				maxTriangles: params.infiniteTriangles ? Infinity : params.maxTriangles,
 			} )
 
 			const mesh = new THREE.Mesh( subdivided, material )
