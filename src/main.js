@@ -8,13 +8,6 @@ import * as utils from "./utils"
 import basicSetup from "./setup"
 import { Earcut } from "./Earcut"
 
-window.addEventListener( "DOMContentLoaded", () => {
-
-	document.fonts.ready.then( () => init() )
-
-	document.body.style.opacity = 1
-} )
-
 const params = {
 	loop: 1,
 	split: true,
@@ -123,6 +116,41 @@ function run( data ) {
 		min: 1,
 		max: 100,
 		step: 1,
+	} )
+	const download = pane.addButton( {
+		title: "Download (position, uv, normal)",
+	} )
+
+	download.on( "click", () => {
+
+		if ( world.children.length > 0 ) {
+
+			const json = {
+				generator: "uvgen.app",
+				geometries: [],
+			}
+
+			world.traverse( node => {
+
+				if ( node.isMesh ) {
+
+					json.geometries.push( node.geometry.toJSON() )
+				}
+			} )
+
+			console.log( json )
+
+			const data = "data:application/geo+json;charset=utf-8," + encodeURIComponent( JSON.stringify( json, null, "\t" ) )
+
+			const a = document.createElement( "A" )
+			document.body.appendChild( a )
+
+			a.setAttribute( "href", data )
+			a.setAttribute( "download", "geometries.json" )
+			a.click()
+			a.remove()
+
+		}
 	} )
 
 	const gen = () => {
@@ -252,3 +280,10 @@ function generate( scene, data ) {
 	new THREE.Box3().setFromObject( world ).getCenter( center )
 	world.position.sub( center )
 }
+
+window.addEventListener( "DOMContentLoaded", () => {
+
+	document.fonts.ready.then( () => init() )
+
+	document.body.style.opacity = 1
+} )
