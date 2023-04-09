@@ -9,7 +9,7 @@ export default () => {
 
 	camera.far = 100_000
 	camera.up = new THREE.Vector3( 0, 0, 1 )
-	camera.position.set( 0, 0, 2_000 )
+	camera.position.set( 1_000, 1_000, 2_000 )
 	camera.lookAt( 0, 0, 0 )
 
 	const renderer = new THREE.WebGLRenderer( {

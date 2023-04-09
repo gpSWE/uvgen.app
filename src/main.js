@@ -14,13 +14,13 @@ const params = {
 	smooth: true,
 	edge: true,
 	flat: true,
-	maxTriangles: 1000,
-	infiniteTriangles: false,
+	max: 1000,
+	infinite: false,
 	material: 1,
 	wireframe: false,
 	uvcheck: false,
-	mapRepeatX: 1,
-	mapRepeatY: 1,
+	repeatX: 1,
+	repeatY: 1,
 }
 
 const world = new THREE.Object3D()
@@ -93,43 +93,73 @@ function run( data ) {
 
 	// GUI
 
-	const pane = new Pane()
+	const pane = new Pane( {
+		title: "UVGen",
+	} )
 
-	pane.addInput( params, "loop", {
+	const subdivisionFolder = pane.addFolder({
+		title: "Subdivision",
+		expanded: false,
+	} )
+
+	subdivisionFolder.addInput( params, "loop", {
 		min: 1,
 		max: 5,
 		step: 1,
 	} )
-	pane.addInput( params, "split" )
-	pane.addInput( params, "smooth" )
-	pane.addInput( params, "edge" )
-	pane.addInput( params, "flat" )
-	pane.addInput( params, "maxTriangles", {
+
+	subdivisionFolder.addInput( params, "split" )
+
+	subdivisionFolder.addInput( params, "smooth" )
+
+	subdivisionFolder.addInput( params, "edge" )
+
+	subdivisionFolder.addInput( params, "flat" )
+
+	const trianglesFolder = pane.addFolder({
+		title: "Triangles",
+		expanded: false,
+	} )
+
+	trianglesFolder.addInput( params, "max", {
 		min: 1000,
 		max: 100_000,
 		step: 1000,
 	} )
-	pane.addInput( params, "infiniteTriangles" )
-	const material = pane.addInput( params, "material", {
+
+	trianglesFolder.addInput( params, "infinite" )
+
+	const materialFolder = pane.addFolder({
+		title: "Material",
+		expanded: false,
+	} )
+
+	materialFolder.addInput( params, "material", {
 		options: {
 			MeshBasicMaterial: 1,
 			MeshStandardMaterial: 2,
 		},
 	} )
-	pane.addInput( params, "wireframe" )
-	pane.addInput( params, "uvcheck" )
-	pane.addInput( params, "mapRepeatX", {
+
+	materialFolder.addInput( params, "wireframe" )
+	materialFolder.addInput( params, "uvcheck" )
+	materialFolder.addInput( params, "repeatX", {
 		min: 1,
-		max: 100,
+		max: 10,
 		step: 1,
 	} )
-	pane.addInput( params, "mapRepeatY", {
+	materialFolder.addInput( params, "repeatY", {
 		min: 1,
-		max: 100,
+		max: 10,
 		step: 1,
 	} )
-	const download = pane.addButton( {
-		title: "Download (position, uv, normal)",
+
+	const downloadFolder = pane.addFolder({
+		title: "Download for THREE.JS",
+	} )
+
+	const download = downloadFolder.addButton( {
+		title: "position, uv, normal",
 	} )
 
 	download.on( "click", () => {
@@ -183,7 +213,7 @@ function generate( scene, data ) {
 	if ( map ) {
 
 		map.wrapS = map.wrapT = THREE.RepeatWrapping
-		map.repeat.set( params.mapRepeatX, params.mapRepeatY )
+		map.repeat.set( params.repeatX, params.repeatY )
 	}
 
 	if ( params.material === 1 ) {
@@ -245,7 +275,7 @@ function generate( scene, data ) {
 				uvSmooth: params.smooth,
 				preserveEdges: params.edge,
 				flatOnly: params.flat,
-				maxTriangles: params.infiniteTriangles ? Infinity : params.maxTriangles,
+				maxTriangles: params.infinite ? Infinity : params.max,
 			} )
 
 			const mesh = new THREE.Mesh( subdivided, material )
